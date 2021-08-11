@@ -1,5 +1,5 @@
 ss_f = 200000;
-data_source = val(5,1000:end)';
+data_source = val(5,1000:50000)';
 %data_source = -(data_source);
 
 %Filter data
@@ -24,26 +24,26 @@ signs = data_source_norm > 0.7;
 [peaks] = [signs(1:(end-1)) > signs(2:(end)); 0];
 peaks = find(peaks);
 
-subplot(5,1,1); 
+subplot(6,1,1); 
 plot(1:size(data_source,1), data_source, 1:size(grad,1), up, 1:size(grad,1), lo);
 title('PPG');
 xlabel('X');
 axis([0 inf 0 4000])
 
-subplot(5,1,2); 
+subplot(6,1,2); 
 plot(1:size(data_source_norm,1), data_source_norm, ...
     1:size(data_source_norm,1), zeros(size(data_source_norm,1), 1) + 0.7);
 title('Normalized data');
 axis([0 inf 0 1])
 
-subplot(5,1,3);
+subplot(6,1,3);
 plot(1:size(data_source,1), data_source, 'b-',...
     peaks, data_source(peaks), 'rx ');%, ...
     %peakso, data_source(peakso), 'bx ');
 title('Pulse points detector');
 axis([0 inf 0 4000])
 
-subplot(5,1,5);
+subplot(6,1,5);
 peaks = peaks * 0.008;
 [peaks_g, ex_g ] = interval_corrector(peaks, 0.12, 5);
 delta_peak = [0;(peaks(2:end) - peaks(1:end-1))];
@@ -58,13 +58,21 @@ plot(1:size(data_source,1), data_source, 'g-',...
 title('RANSAC on data');
 axis([0 inf 0 4000])
 
-subplot(5,1,4);
+subplot(6,1,4);
 plot(peaks, delta_peak, 'bx ',...
     ex_g, delta_ex, 'rx ');
 title('RANSAC');
 %axis([0 inf 0 4000])
 
-% subplot(6,1,5); 
-% plot(f(1:(size(f,2)/12)), P1(1:(size(f,2)/12)));
-% title('Single-Sided Amplitude Spectrum of X(t)');
-% xlabel('f (Hz)');
+a = -10;
+b = 90;
+df_valid = zeros(0, b - a + 1); 
+for i = 1:(size(peaks,1)-1)
+    df_one = data_source((peaks(i) + a):(peaks(i) + b), 1);
+    df_one = df_one - min(df_one);
+    df_one = df_one ./ max(df_one);
+    df_valid = [df_valid , df_one];
+end
+subplot(6,1,6);
+plot(df_valid);
+%title('RANSAC');
