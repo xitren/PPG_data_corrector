@@ -2,5 +2,8 @@
 clear all;
 %load('matlab.mat');
 load('3372782_0073m.mat');
-%ecg_signal_parse;
+
+ss_f = 2740000;
+
 ppg_signal_parse;
+ecg_signal_parse;

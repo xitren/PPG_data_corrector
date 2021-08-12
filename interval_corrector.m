@@ -17,8 +17,8 @@ function [ points_val, excluded ] = interval_corrector( points, delta, window )
     delta_int = [(intervals(2:end) - mean_val(1:end-1));0];
     selector = delta_int > delta;
     filt_sel = ones(size(selector,1), 1);
-    for i = (3):(size(selector,1) - 3)
-        filt_sel(i) = sum(selector(i-2:i+2));
+    for i = (2):(size(selector,1) - 1)
+        filt_sel(i) = sum(selector(i-1:i+1));
     end
     selector = logical(filt_sel);
     excluded = points(selector);
