@@ -121,10 +121,10 @@ for i = 3:size(ex_cg)-2
 end
 sel = 2;
 norm = 700;
-pts = pts ./ norm;
-plot(1:e_size, epochs_ecg(:,sel), 'r- ', 1:e_size, epochs_ppg(:,sel), 'r- ', ...
-    pts(1,sel)*norm, epochs_ecg(pts(1,sel)*norm,sel), 'bx ', ...
-    pts(2,sel)*norm, epochs_ppg(pts(2,sel)*norm,sel), 'bx ' );
-axis([0 inf -0.5 1.5])
-title('Epoch');
+pts = double(pts) ./ norm;
+% plot(1:e_size, epochs_ecg(:,sel), 'r- ', 1:e_size, epochs_ppg(:,sel), 'r- ', ...
+%     pts(1,sel)*norm, epochs_ecg(pts(1,sel)*norm,sel), 'bx ', ...
+%     pts(2,sel)*norm, epochs_ppg(pts(2,sel)*norm,sel), 'bx ' );
+% axis([0 inf -0.5 1.5])
+% title('Epoch');
 save('epochs.mat', pts, epochs_ecg, epochs_ppg);
