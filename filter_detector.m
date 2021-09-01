@@ -1,5 +1,6 @@
 function [ parsed ] = filter_detector( data, filt )
 
+    filt = 1 ./ filt; 
     parsed = zeros(size(data, 1), 1);
     
     for i = 1:(size(data, 1) - size(filt, 1))

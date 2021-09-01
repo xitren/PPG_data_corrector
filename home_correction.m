@@ -9,8 +9,8 @@ subplot(4,1,1);
 [up_ecg, lo_ecg] = interval_detector2(ECG, 600);
 peaks_ecg = find(ECG == up_ecg');
 [peaks_cg, ex_cg ] = interval_corrector(peaks_ecg, 1000, 7);
-plot(gf, ECG(gf), 'g-',...
-     time, ECG(int64(time)+1), 'bx ', peaks_cg, ECG(peaks_cg), 'rx ');
+plot(gf, ECG(gf), 'g-', gf, PPG(gf), 'b-',...
+     peaks_cg, ECG(peaks_cg), 'rx ');
 title('ECG');
 axis([1000 inf -1000 1000])
 
@@ -31,8 +31,10 @@ delta_peak = delta_peak - mean(delta_peak);
 delta_ex = delta_ex - mean(delta_ex);
 peaks_g = int32(peaks_g);
 ex_g = int32(ex_g);
-plot(gy, PPG(gy), 'g-',...
-    peaks_g, PPG(peaks_g), 'bx ', ex_g, PPG(ex_g), 'rx ');
+plot(gf, PPG(gf), 'g-', gf, ECG(gf), 'b-',...
+     peaks_g, PPG(peaks_g), 'rx ');
+% plot(gy, PPG(gy), 'g-',...
+%     peaks_g, PPG(peaks_g), 'bx ', ex_g, PPG(ex_g), 'rx ');
 title('RANSAC on data');
 axis([0 inf -1000 1000])
 

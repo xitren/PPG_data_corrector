@@ -20,7 +20,7 @@ for i = 3:size(peaks_cg)-2
         z2 = peaks_cg(i) + k + e_size - 1;
         fff = find((z1 < peaks_g) & (peaks_g < z2));
         if size(fff,1) > 0
-            pts = [pts , [peaks_cg(i) - z1 ; 1. ; 1.]];
+            pts = [pts , [1. ; 1. ; 1.]];
             ep = ECG(z1 : z2);
             min_ep = min(ep);
             ep = ep - min_ep;
@@ -34,7 +34,7 @@ for i = 3:size(peaks_cg)-2
             ep = ep / max_ep;
             epochs_ppg = [epochs_ppg , ep];
         else
-            pts = [pts , [peaks_cg(i) - z1 ; 0. ; 0.]];
+            pts = [pts , [1. ; 0. ; 0.]];
             ep = ECG(z1 : z2);
             min_ep = min(ep);
             ep = ep - min_ep;
@@ -56,7 +56,7 @@ for i = 3:size(ex_cg)-2
         z2 = ex_cg(i) + k + e_size - 1;
         fff = find((z1 < peaks_g) & (peaks_g < z2));
         if size(fff,1) > 0
-            pts = [pts , [0. ; 0. ; 1.]];
+            pts = [pts , [0. ; 0. ; 0.]];
             ep = ECG(z1 : z2);
             min_ep = min(ep);
             ep = ep - min_ep;
