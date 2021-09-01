@@ -1,4 +1,4 @@
-function [ up, lo ] = interval_detector( data, correction, avg_window )
+function [ up, lo ] = filter_detector( data, correction, avg_window )
 %interval_detector returning interval of signal 
 %   [lower, higher] = interval_detector(data, period_max, decrement)
 %   returns the numerical interval of the data
