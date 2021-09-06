@@ -1,6 +1,6 @@
 testBIN = test
 
-CFLAGS = -std=c99 -Wall -Wextra -pedantic -Ofast -flto -march=native
+CFLAGS = -std=c99 -Wall -Wextra -pedantic -O0 -flto -march=native
 
 INCLUDES = -Iref -Isrc -I.
 

@@ -162,8 +162,7 @@ void build_data(data* data, const char* path, const char* separator,
         return;
     }
     DESCRIBE_LOG("Countings rows\n");
-//    const size_t rows = lns(file, &max_line);
-    const size_t rows = 1000;
+    const size_t rows = lns(file, &max_line);
     DESCRIBE_LOG("Memory allocated\n");
     ndata(data, nips, nops, rows);
     DESCRIBE_LOG("Started data parsing\n");
@@ -177,7 +176,7 @@ void build_data(data* data, const char* path, const char* separator,
     }
     DESCRIBE_LOG("\nend\n");
     fclose(file);
-    shuffle(data);
+//    shuffle(data);
     return;
 }
 

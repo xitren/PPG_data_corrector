@@ -38,6 +38,22 @@ void adv_filter_init(adv_filter* filt)
     memset(filt->mark_ecg, 0, sizeof(mark_ecg));
     memset(filt->mark_ppg, 0, sizeof(mark_ppg));
     adv_min_max_clear(filt);
+    filt->min_ecg[1] = UINT_LEAST16_MAX;
+    filt->max_ecg[1] = 1;
+    filt->min_ecg_it[1] = 1;
+    filt->max_ecg_it[1] = 1;
+    filt->min_ppg[1] = UINT_LEAST16_MAX;
+    filt->max_ppg[1] = 1;
+    filt->min_ppg_it[1] = 1;
+    filt->max_ppg_it[1] = 1;
+    filt->min_ecg[2] = UINT_LEAST16_MAX;
+    filt->max_ecg[2] = 1;
+    filt->min_ecg_it[2] = 1;
+    filt->max_ecg_it[2] = 1;
+    filt->min_ppg[2] = UINT_LEAST16_MAX;
+    filt->max_ppg[2] = 1;
+    filt->min_ppg_it[2] = 1;
+    filt->max_ppg_it[2] = 1;
     filt->tail = 0;
     filt->head = 0;
     filt->head_parsed = 0;
@@ -46,25 +62,71 @@ void adv_filter_init(adv_filter* filt)
     TRACE_LOG("adv_filter_init end\n");
 }
 
+uint16_t get_last_parsed_ecg(adv_filter* filt)
+{
+    TRACE_LOG("get_last_parsed_ecg %zu > 0 res(%zu) = %hu\n",
+              filt->head_parsed, (filt->head_parsed - 1) % WINDOW,
+              filt->ecg_parsed[(filt->head_parsed - 1) % WINDOW]);
+    if (filt->head_parsed > 0)
+        return filt->ecg_parsed[(filt->head_parsed - 1) % WINDOW];
+    else
+        return 0;
+}
+
+uint16_t get_last_parsed_ppg(adv_filter* filt)
+{
+    TRACE_LOG("get_last_parsed_ppg %zu > 0 res(%zu) = %hu\n",
+              filt->head_parsed, (filt->head_parsed - 1) % WINDOW,
+              filt->ppg_parsed[(filt->head_parsed - 1) % WINDOW]);
+    if (filt->head_parsed > 0)
+        return filt->ppg_parsed[(filt->head_parsed - 1) % WINDOW];
+    else
+        return 0;
+}
+
+void get_lasts_parsed(adv_filter* filt, uint16_t* data_ecg, uint16_t* data_ppg, size_t n)
+{
+    size_t i;
+    TRACE_LOG("get_lasts_parsed\n");
+    for (i = 1;(i <= n) && (i <= filt->head_parsed);i++)
+    {
+        TRACE_LOG("%zu <= %zu && %zu <= %zu\n", i, n, i, filt->head_parsed);
+        data_ecg[n - i] = filt->ecg_parsed[(filt->head_parsed - i) % WINDOW];
+        data_ppg[n - i] = filt->ppg_parsed[(filt->head_parsed - i) % WINDOW];
+        TRACE_LOG("data_ecg[%zu] = %hu[%zu], data_ppg[%zu] = %hu[%zu]\n",
+                  n - i, filt->ecg_parsed[(filt->head_parsed - 1) % WINDOW],
+                  (filt->head_parsed - 1) % WINDOW,
+                  n - i, filt->ppg_parsed[(filt->head_parsed - 1) % WINDOW],
+                  (filt->head_parsed - 1) % WINDOW);
+    }
+    for (;(i <= n);i++)
+    {
+        TRACE_LOG("%zu <= %zu\n", i, n);
+        data_ecg[n - i] = 0;
+        data_ppg[n - i] = 0;
+    }
+    TRACE_LOG("get_lasts_parsed end\n");
+}
+
 static inline void adv_min_max_clear(adv_filter* filt)
 {
     TRACE_LOG("adv_min_max_clear\n");
     filt->min_ecg[0] = UINT_LEAST16_MAX;
-    filt->max_ecg[0] = 0;
-    filt->min_ecg_it[0] = 0;
-    filt->max_ecg_it[0] = 0;
+    filt->max_ecg[0] = 1;
+    filt->min_ecg_it[0] = 1;
+    filt->max_ecg_it[0] = 1;
     filt->min_ppg[0] = UINT_LEAST16_MAX;
-    filt->max_ppg[0] = 0;
-    filt->min_ppg_it[0] = 0;
-    filt->max_ppg_it[0] = 0;
+    filt->max_ppg[0] = 1;
+    filt->min_ppg_it[0] = 1;
+    filt->max_ppg_it[0] = 1;
     TRACE_LOG("adv_min_max_clear end\n");
 }
 
 static void init_adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg)
 {
     TRACE_LOG("init_adv_filter_input\n");
-    ecg[filt->head % WINDOW] = data_ecg;
-    ppg[filt->head % WINDOW] = data_ppg;
+    filt->ecg[filt->head % WINDOW] = data_ecg;
+    filt->ppg[filt->head % WINDOW] = data_ppg;
     filt->head++;
     TRACE_LOG("head = %zu\n", filt->head);
     if (filt->head >= WINDOW)
@@ -81,25 +143,12 @@ static void after_adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t
 {
     TRACE_LOG("after_adv_filter_input\n");
     size_t i;
-    const uint16_t old_ecg = ecg[filt->head % WINDOW];
-    const uint16_t old_ppg = ppg[filt->head % WINDOW];
-    ecg[filt->head % WINDOW] = data_ecg;
-    ppg[filt->head % WINDOW] = data_ppg;
+    const uint16_t old_ecg = filt->ecg[filt->head % WINDOW];
+    const uint16_t old_ppg = filt->ppg[filt->head % WINDOW];
+    filt->ecg[filt->head % WINDOW] = data_ecg;
+    filt->ppg[filt->head % WINDOW] = data_ppg;
     filt->tail++;
     filt->head++;
-    if ( (filt->min_ecg_it < filt->tail)
-            || (filt->max_ecg_it < filt->tail)
-            || (filt->min_ppg_it < filt->tail)
-            || (filt->max_ppg_it < filt->tail) )
-    {
-        DEBUG_LOG("One of min/max out of range\n");
-        adv_min_max_clear(filt);
-        for (i = 0;i < WINDOW;i++)
-        {
-            DEBUG_LOG("Finding new one %zu\n", i);
-            adv_min_max(filt, ecg[i], ppg[i]);
-        }
-    }
     adv_correction(filt, old_ecg, old_ppg);
     TRACE_LOG("after_adv_filter_input end\n");
 }
@@ -117,8 +166,8 @@ static inline void adv_correction(adv_filter* filt, const uint16_t data_ecg, con
             ecg_t, filt->max_ecg[2], filt->min_ecg[2]);
     PRECISE_LOG("resized %u *= 1 / (%hu - %hu)\n",
             ppg_t, filt->max_ppg[2], filt->min_ppg[2]);
-    ecg_parsed[filt->head_parsed % WINDOW] = (uint8_t)ecg_t;
-    ppg_parsed[filt->head_parsed % WINDOW] = (uint8_t)ppg_t;
+    filt->ecg_parsed[filt->head_parsed % WINDOW] = (uint8_t)ecg_t;
+    filt->ppg_parsed[filt->head_parsed % WINDOW] = (uint8_t)ppg_t;
     PRECISE_LOG("saved %hhu (%zu)\n", ecg_t, filt->head_parsed % WINDOW);
     PRECISE_LOG("saved %hhu (%zu)\n", ppg_t, filt->head_parsed % WINDOW);
     filt->head_parsed++;
@@ -246,7 +295,8 @@ static inline void adv_min_max(adv_filter* filt, uint16_t data_ecg, uint16_t dat
     PRECISE_LOG(" = %hu ", filt->min_ecg[0]);
     (min_ecg_cmp && (filt->min_ecg_it[0] = filt->min_ecg_it[0]))
             || (filt->min_ecg_it[0] = (filt->head - 1));
-    PRECISE_LOG("(%zu)\n", filt->min_ecg_it[0]);
+    PRECISE_LOG("(%zu)(%zu - %zu)\n", filt->min_ecg_it[0],
+                (filt->head - 1));
     
     PRECISE_LOG("min_ppg(%hu, %hu)", filt->min_ppg[0], data_ppg);
     (min_ppg_cmp && (filt->min_ppg[0] = filt->min_ppg[0]))

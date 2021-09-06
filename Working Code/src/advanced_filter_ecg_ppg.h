@@ -65,6 +65,9 @@ struct _tag_adv_filter {
 void adv_filter_init(adv_filter* filt);
 void adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg);
 void adv_filter_inputs(adv_filter* filt, uint16_t* data_ecg, uint16_t* data_ppg, size_t n);
+uint16_t get_last_parsed_ecg(adv_filter* filt);
+uint16_t get_last_parsed_ppg(adv_filter* filt);
+void get_lasts_parsed(adv_filter* filt, uint16_t* data_ecg, uint16_t* data_ppg, size_t n);
 
 #ifdef __cplusplus
 }

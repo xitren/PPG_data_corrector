@@ -12,6 +12,7 @@ int main(void)
     // Tinn does not seed the random number generator.
     srand(time(0));
     
+    FILE* const file = fopen("output_data_light.csv", "w");
     const int nips = 2;
     const int nops = 0;
     float target[3];
@@ -20,7 +21,7 @@ int main(void)
     
     // Load the training set.
     DESCRIBE_LOG("Read started\n");
-    build_data(&data, "tests/prep_data.txt", "\t", nips, nops);
+    build_data(&data, "input_data_light.txt", "\t", nips, nops);
     DESCRIBE_LOG("Files readed %zu rows\n", data.rows);
 
     // Train, baby, train.
@@ -28,9 +29,13 @@ int main(void)
     adv_filter_init(&filter);
     DESCRIBE_LOG("Load started\n");
     DESCRIBE_LOG("Inference started\n");
-    for (int k = 0; k < data.rows; k++)
+    for (size_t k = 0; k < data.rows; k++)
     {
         adv_filter_input(&filter, (uint16_t)data.in[k][0], (uint16_t)data.in[k][1]);
+        const uint16_t out_ecg = get_last_parsed_ecg(&filter);
+        const uint16_t out_ppg = get_last_parsed_ppg(&filter);
+        fprintf(file, "%hu\t%hu\n", out_ecg, out_ppg);
     }
+    fclose(file);
     return 0;
 }
