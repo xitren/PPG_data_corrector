@@ -143,8 +143,8 @@ static void after_adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t
 {
     TRACE_LOG("after_adv_filter_input\n");
     size_t i;
-    const uint16_t old_ecg = filt->ecg[filt->head % WINDOW];
-    const uint16_t old_ppg = filt->ppg[filt->head % WINDOW];
+    const uint16_t old_ecg = filt->ecg[(filt->head - WINDOW/2) % WINDOW];
+    const uint16_t old_ppg = filt->ppg[(filt->head - WINDOW/2) % WINDOW];
     filt->ecg[filt->head % WINDOW] = data_ecg;
     filt->ppg[filt->head % WINDOW] = data_ppg;
     filt->tail++;
@@ -157,7 +157,7 @@ static inline void adv_correction(adv_filter* filt, const uint16_t data_ecg, con
 {
     TRACE_LOG("adv_correction\n");
     uint32_t ecg_t = data_ecg - filt->min_ecg[2];
-    uint32_t ppg_t = data_ppg - filt->min_ecg[2];
+    uint32_t ppg_t = data_ppg - filt->min_ppg[2];
     PRECISE_LOG("selected %u = %hu - %hu\n", ecg_t, data_ecg, filt->min_ecg[2]);
     PRECISE_LOG("selected %u = %hu - %hu\n", ppg_t, data_ppg, filt->min_ppg[2]);
     ecg_t = ecg_t * UINT_LEAST8_MAX / (uint32_t)(filt->max_ecg[2] - filt->min_ecg[2]);
@@ -194,6 +194,7 @@ void adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg)
         filt->max_ppg[1] = filt->max_ppg[0];
         filt->min_ppg_it[1] = filt->min_ppg_it[0];
         filt->max_ppg_it[1] = filt->max_ppg_it[0];
+        adv_min_max_clear(filt);
     }
     TRACE_LOG("adv_filter_input end\n");
 }
