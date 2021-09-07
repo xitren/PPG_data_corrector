@@ -12,7 +12,7 @@ int main(void)
     // Tinn does not seed the random number generator.
     srand(time(0));
     
-    FILE* const file = fopen("output_data_light.csv", "w");
+    FILE* const file = fopen("output_data.csv", "w");
     const int nips = 2;
     const int nops = 0;
     float target[3];
@@ -21,7 +21,7 @@ int main(void)
     
     // Load the training set.
     DESCRIBE_LOG("Read started\n");
-    build_data(&data, "input_data_light.txt", "\t", nips, nops);
+    build_data(&data, "input_data.txt", "\t", nips, nops);
     DESCRIBE_LOG("Files readed %zu rows\n", data.rows);
 
     // Train, baby, train.

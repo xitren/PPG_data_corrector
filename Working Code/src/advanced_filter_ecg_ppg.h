@@ -59,7 +59,8 @@ struct _tag_adv_filter {
     // Releaser.
     uint16_t* mark_ecg;
     uint16_t* mark_ppg;
-    size_t mark_head;
+    size_t mark_ecg_head;
+    size_t mark_ppg_head;
 };
 
 void adv_filter_init(adv_filter* filt);
