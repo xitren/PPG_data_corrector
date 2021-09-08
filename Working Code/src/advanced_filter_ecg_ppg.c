@@ -182,7 +182,7 @@ static inline void adv_correction(adv_filter* filt, const uint16_t data_ecg, con
     TRACE_LOG("adv_correction\n");
     static uint32_t old_ppg[MVAVERAGE];
     static uint32_t old_ppg_sum;
-    static uint32_t old_ppg_ress;
+    static uint8_t old_ppg_ress;
     static uint8_t old_ppg_cnt;
     uint32_t ecg_t = data_ecg - filt->min_ecg[2];
     uint32_t ppg_t = data_ppg - filt->min_ppg[2];
@@ -201,12 +201,12 @@ static inline void adv_correction(adv_filter* filt, const uint16_t data_ecg, con
         old_ppg_sum += old_ppg[i];
     const uint8_t old_ppg_res = (uint8_t)(old_ppg_sum / MVAVERAGE);
     filt->ppg_parsed[filt->head_parsed % WINDOW] = old_ppg_res;
-    if ((old_ppg_ress < 100) && (100 < old_ppg_res))
+    if ((old_ppg_ress < 100) && (100 <= old_ppg_res))
     {
         const size_t x = tang0_by_two_points(filt->head - WINDOW/2 - MVAVERAGE,
                 filt->ppg_parsed[(filt->head_parsed - MVAVERAGE) % WINDOW],
                 filt->head - WINDOW/2, old_ppg_res);
-        if (((filt->head - WINDOW/2 - 100) < x) && (x < (filt->head - WINDOW/2)))
+        if (((filt->head - WINDOW/2 - 300) < x) && (x < (filt->head - WINDOW/2)))
         {
             filt->mark_ppg[filt->mark_ppg_head % DOTS] = x;
             filt->mark_ppg_head++;
