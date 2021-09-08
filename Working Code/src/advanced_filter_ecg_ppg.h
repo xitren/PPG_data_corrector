@@ -31,6 +31,7 @@ extern "C" {
 typedef struct _tag_adv_filter adv_filter;
     
 typedef void (*filter_parser)(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg);
+typedef void (*point_detector)(adv_filter* filt, size_t data);
 
 struct _tag_adv_filter {
     // Window size.
@@ -44,12 +45,12 @@ struct _tag_adv_filter {
     // Max & min
     uint16_t min_ecg[3];
     uint16_t max_ecg[3];
-    uint16_t min_ecg_it[3];
-    uint16_t max_ecg_it[3];
+    size_t min_ecg_it[3];
+    size_t max_ecg_it[3];
     uint16_t min_ppg[3];
     uint16_t max_ppg[3];
-    uint16_t min_ppg_it[3];
-    uint16_t max_ppg_it[3];
+    size_t min_ppg_it[3];
+    size_t max_ppg_it[3];
     // Ring buffer
     size_t tail;
     size_t head;
@@ -61,14 +62,17 @@ struct _tag_adv_filter {
     uint16_t* mark_ppg;
     size_t mark_ecg_head;
     size_t mark_ppg_head;
+    // detectors
+    point_detector ecg_point_detector;
+    point_detector ppg_point_detector;
 };
 
-void adv_filter_init(adv_filter* filt);
+void adv_filter_init(adv_filter* filt, point_detector ecg_det, point_detector ppg_det);
 void adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg);
 void adv_filter_inputs(adv_filter* filt, uint16_t* data_ecg, uint16_t* data_ppg, size_t n);
+void get_lasts_parsed(adv_filter* filt, uint16_t* data_ecg, uint16_t* data_ppg, size_t n);
 uint16_t get_last_parsed_ecg(adv_filter* filt);
 uint16_t get_last_parsed_ppg(adv_filter* filt);
-void get_lasts_parsed(adv_filter* filt, uint16_t* data_ecg, uint16_t* data_ppg, size_t n);
 
 #ifdef __cplusplus
 }

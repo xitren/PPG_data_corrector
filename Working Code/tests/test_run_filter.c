@@ -6,6 +6,19 @@
 #include <string.h>
 #include <stdlib.h>
 
+FILE* file_ecg;
+FILE* file_ppg;
+
+void ecg_point_detector(adv_filter* filt, size_t data)
+{
+    fprintf(file_ecg, "%zu\n", data);
+}
+
+void ppg_point_detector(adv_filter* filt, size_t data)
+{
+    fprintf(file_ppg, "%zu\n", data);
+}
+
 // Learns and predicts hand written digits with 98% accuracy.
 int main(void)
 {
@@ -13,6 +26,8 @@ int main(void)
     srand(time(0));
     
     FILE* const file = fopen("output_data.csv", "w");
+    file_ecg = fopen("ecg_pts.csv", "w");
+    file_ppg = fopen("ppg_pts.csv", "w");
     const int nips = 2;
     const int nops = 0;
     float target[3];
@@ -26,7 +41,7 @@ int main(void)
 
     // Train, baby, train.
     DESCRIBE_LOG("Initialization started\n");
-    adv_filter_init(&filter);
+    adv_filter_init(&filter, &ecg_point_detector, &ppg_point_detector);
     DESCRIBE_LOG("Load started\n");
     DESCRIBE_LOG("Inference started\n");
     for (size_t k = 0; k < data.rows; k++)
@@ -37,5 +52,7 @@ int main(void)
         fprintf(file, "%hu\t%hu\n", out_ecg, out_ppg);
     }
     fclose(file);
+    fclose(file_ecg);
+    fclose(file_ppg);
     return 0;
 }

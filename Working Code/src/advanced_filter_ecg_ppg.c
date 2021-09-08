@@ -27,7 +27,7 @@ static inline uint32_t tang0_by_two_points(const uint16_t x1, const uint16_t y1,
 static inline void adv_correction(adv_filter* filt,
         const uint16_t data_ecg, const uint16_t data_ppg);
 
-void adv_filter_init(adv_filter* filt)
+void adv_filter_init(adv_filter* filt, point_detector ecg_det, point_detector ppg_det)
 {
     TRACE_LOG("adv_filter_init\n");
     filt->ecg = ecg;
@@ -65,6 +65,8 @@ void adv_filter_init(adv_filter* filt)
     filt->head_parsed = 0;
     filt->mark_ecg_head = 0;
     filt->mark_ppg_head = 0;
+    filt->ecg_point_detector = ecg_det;
+    filt->ppg_point_detector = ppg_det;
     filt->fp = &init_adv_filter_input;
     TRACE_LOG("adv_filter_init end\n");
 }
@@ -149,7 +151,6 @@ static void init_adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t 
 static void after_adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg)
 {
     TRACE_LOG("after_adv_filter_input\n");
-    size_t i;
     const uint16_t old_ecg = filt->ecg[(filt->head - WINDOW/2) % WINDOW];
     const uint16_t old_ppg = filt->ppg[(filt->head - WINDOW/2) % WINDOW];
     filt->ecg[filt->head % WINDOW] = data_ecg;
@@ -195,6 +196,7 @@ static inline void adv_correction(adv_filter* filt, const uint16_t data_ecg, con
                 filt->head - WINDOW/2, ppg_t);
         filt->mark_ppg[filt->mark_ppg_head % DOTS] = x;
         filt->mark_ppg_head++;
+        (filt->ppg_point_detector)(filt, x);
     }
     old4_ppg = old3_ppg;
     old3_ppg = old2_ppg;
@@ -215,8 +217,9 @@ void adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg)
     adv_min_max(filt, data_ecg, data_ppg);
     if (!(filt->head % (WINDOW / 2)))
     {
-        filt->mark_ecg[filt->mark_ecg_head % DOTS] = filt->max_ecg_it[1];
+        filt->mark_ecg[filt->mark_ecg_head % DOTS] = filt->max_ecg_it[2];
         filt->mark_ecg_head++;
+        (filt->ecg_point_detector)(filt, filt->max_ecg_it[2]);
         adv_min_max_stage(filt);
         filt->min_ecg[1] = filt->min_ecg[0];
         filt->max_ecg[1] = filt->max_ecg[0];
