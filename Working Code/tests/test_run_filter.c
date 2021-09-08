@@ -51,6 +51,7 @@ int main(void)
         const uint16_t out_ppg = get_last_parsed_ppg(&filter);
         fprintf(file, "%hu\t%hu\n", out_ecg, out_ppg);
     }
+    DESCRIBE_LOG("diff = %zu\n", filter.diff);
     fclose(file);
     fclose(file_ecg);
     fclose(file_ppg);

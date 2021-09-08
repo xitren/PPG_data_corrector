@@ -24,7 +24,8 @@ extern "C" {
 #include <stdlib.h>
 #include <math.h>
 
-#define WINDOW 700
+#define WINDOW 1024
+#define MVAVERAGE 10
 #define DOTS 4
 //#define SIMD
 
@@ -53,13 +54,14 @@ struct _tag_adv_filter {
     size_t max_ppg_it[3];
     // Ring buffer
     size_t tail;
+    size_t diff;
     size_t head;
     size_t head_parsed;
     // Parser func
     filter_parser fp;
     // Releaser.
-    uint16_t* mark_ecg;
-    uint16_t* mark_ppg;
+    size_t* mark_ecg;
+    size_t* mark_ppg;
     size_t mark_ecg_head;
     size_t mark_ppg_head;
     // detectors
