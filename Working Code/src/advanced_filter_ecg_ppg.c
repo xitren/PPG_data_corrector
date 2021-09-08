@@ -222,6 +222,7 @@ static inline void adv_correction(adv_filter* filt, const uint16_t data_ecg, con
 
 void adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg)
 {
+    static size_t old_ecg;
     TRACE_LOG("adv_filter_input (%hu, %hu)\n",data_ecg,data_ppg);
     data_ecg++;
     data_ppg++;
@@ -229,9 +230,12 @@ void adv_filter_input(adv_filter* filt, uint16_t data_ecg, uint16_t data_ppg)
     adv_min_max(filt, data_ecg, data_ppg);
     if (!(filt->head % (WINDOW / 2)))
     {
-        filt->mark_ecg[filt->mark_ecg_head % DOTS] = filt->max_ecg_it[2];
-        filt->mark_ecg_head++;
-        (filt->ecg_point_detector)(filt, filt->max_ecg_it[2] + filt->diff);
+        if (old_ecg != filt->max_ecg_it[2])
+        {
+            old_ecg = filt->mark_ecg[filt->mark_ecg_head % DOTS] = filt->max_ecg_it[2];
+            filt->mark_ecg_head++;
+            (filt->ecg_point_detector)(filt, filt->max_ecg_it[2] + filt->diff);
+        }
         adv_min_max_stage(filt);
         filt->min_ecg[1] = filt->min_ecg[0];
         filt->max_ecg[1] = filt->max_ecg[0];
