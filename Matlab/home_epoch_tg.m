@@ -1,7 +1,7 @@
 clear;
 load('corrected.mat');
 
-all_size = size(vq2,2)/2;
+all_size = size(vq2,2);
 e_size = 700;
 epoch_ecg = zeros(all_size - 700,e_size);
 epoch_ppg = zeros(all_size - 700,e_size);

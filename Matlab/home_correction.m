@@ -1,7 +1,7 @@
 %Parameters
 clear;
 %load('long_test.mat');
-load('data.mat');
+load('data2.mat');
 gf = 1:size(ECG,1);
 gy = 1:size(PPG,1);
 
@@ -59,7 +59,7 @@ for i = 1:size(peaks_cg,1)
 end
 plot(PAT2(:,1), PAT2(:,2), 'b- ');
 % plot(PAT2(:,1), PAT2(:,2), 'b- ', timePat, PAT-50, 'b- ');
-% axis([0 inf 100 200]);
+axis([0 inf 100 200]);
 title('PAT');
 
 coff_ecg = lo_ecg' - up_ecg';
@@ -71,9 +71,10 @@ data_source_norm_ppg = (PPG - (lo_ppg')) ./ coff_ppg;
 data_source_norm_ppg = abs(data_source_norm_ppg);
 
 subplot(4,1,4);
+[up_inv, lo_inv] = interval_detector2(invaz, 400);
 vq1 = interp1(PAT2(:,1), PAT2(:,2), gf);
-vq2 = tsmovavg(vq1,'s',100000);
-vq2 = (vq2 - 150) / 150;
+vq2 = tsmovavg(up_inv,'s',10000);
+vq2 = (vq2 - 100) / 60;
 plot(gf, vq2, 'b- ');
 axis([0 inf 0 1]);
 save('corrected.mat', 'ECG','PPG','vq2');
