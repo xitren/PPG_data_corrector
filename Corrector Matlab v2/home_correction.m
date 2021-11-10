@@ -29,11 +29,11 @@ subplot(5,2,4);
 title('Right hand PAT calculated data');
 
 subplot(5,2,5);
-plot_corrected(left_hand_ECG, left_hand_PPG, 400);
+left_hand_PPG_corrected = plot_corrected(left_hand_ECG, left_hand_PPG, 400);
 title('Corrected data');
 
 subplot(5,2,6);
-plot_corrected(right_hand_ECG, right_hand_PPG, 400);
+right_hand_PPG_corrected = plot_corrected(right_hand_ECG, right_hand_PPG, 400);
 title('Corrected data');
 
 subplot(5,2,7);
@@ -58,21 +58,30 @@ subplot(5,2,8);
 movement = sqrt( grad_quat(:,1) .* grad_quat(:,1) + ...
                  grad_quat(:,2) .* grad_quat(:,2) + ...
                  grad_quat(:,4) .* grad_quat(:,4) );
-movement(movement > 2000000) = 2000000;
-plot(lh_size, movement > 500000);
-axis([1000 inf -inf inf])
+movement(movement > 3000000) = 0;
+window = 5000;
+[avg_src] = tsmovavg(movement, 's', window, 1);
+avg_src(1:window) = ones(window, 1);
+movement_mode = avg_src > 400000;
+plot(lh_size, movement_mode);
+% plot(lh_size, avg_src);
+axis([1000 inf -0.1 1.1])
 title('Movement');
 
 subplot(5,2,9);
-left_hand_PPG_nn = left_hand_PPG;
-left_hand_PPG_nn(movement > 500000) = -500;
-plot(left_hand_PPG_nn);
-axis([1000 inf -500 500])
-title('In movement data');
+left_PAT2_l = left_PAT2(movement_mode(left_PAT2(1:end,1)),:);
+left_hand_PPG_nn = left_hand_PPG_corrected;
+left_hand_PPG_nn(~movement_mode) = 0;
+plot(1:size(left_hand_PPG_nn, 1), left_hand_PPG_nn, 'b- ', ...
+     left_PAT2_l(:,1)+100, zeros(size(left_PAT2_l,1)) + 0.5, 'rx ');
+axis([1000 inf 0 1])
+title('Left hand In movement data');
 
 subplot(5,2,10);
-right_hand_PPG_nn = right_hand_PPG;
-right_hand_PPG_nn(movement > 500000) = -500;
-plot(right_hand_PPG_nn);
-axis([1000 inf -500 500])
-title('In movement data');
+right_PAT2_l = right_PAT2(movement_mode(right_PAT2(1:end,1)),:);
+right_hand_PPG_nn = right_hand_PPG_corrected;
+right_hand_PPG_nn(~movement_mode) = 0;
+plot(1:size(right_hand_PPG_nn, 1), right_hand_PPG_nn, 'b- ', ...
+     right_PAT2_l(:,1), zeros(size(right_PAT2_l,1)) + 0.5, 'rx ');
+axis([1000 inf 0 1])
+title('Right hand In movement data');

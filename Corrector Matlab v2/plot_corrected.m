@@ -8,7 +8,7 @@ function [ ECG_PPG ] = plot_corrected( ECG, PPG, interval )
     coff_ppg = lo_ppg' - up_ppg';
     PPG = (PPG - (lo_ppg')) ./ coff_ppg;
     
-    ECG_PPG = (ECG + PPG + 2) / 2;
+    ECG_PPG = abs(PPG);
     plot(ECG_PPG, 'b- ');
     title('Corrected data');
     axis([0 inf 0 1]);

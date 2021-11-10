@@ -19,7 +19,7 @@ function [ PAT2 ] = plot_peaks_PAT( ECG, PPG, peaks_ecg, peaks_ppg, ...
             PAT2 = [PAT2 ; [peaks_ecg(i), peaks_tg(ind(1)) - peaks_ecg(i)]];
         end
     end
-    PAT2 = interval_corrector(PAT2, 20);
+%     PAT2 = interval_corrector(PAT2, 20);
     
     plot(PAT2(:,1), PAT2(:,2), 'b- ', PAT_time, PAT, 'r- ');
     title('PAT calculated data');
