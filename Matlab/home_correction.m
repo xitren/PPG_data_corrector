@@ -1,7 +1,7 @@
 %Parameters
 clear;
 %load('long_test.mat');
-load('data2.mat');
+load('data4.mat');
 gf = 1:size(ECG,1);
 gy = 1:size(PPG,1);
 
@@ -57,9 +57,9 @@ for i = 1:size(peaks_cg,1)
         PAT2 = [PAT2 ; [peaks_cg(i), peaks_tg(ind(1)) - peaks_cg(i)]];
     end
 end
-plot(PAT2(:,1), PAT2(:,2), 'b- ');
-% plot(PAT2(:,1), PAT2(:,2), 'b- ', timePat, PAT-50, 'b- ');
-axis([0 inf 100 200]);
+% plot(PAT2(:,1), PAT2(:,2), 'b- ');
+plot(PAT2(:,1), PAT2(:,2), 'r- ', timePAT, PAT-50, 'b- ');
+axis([0 inf 0 300]);
 title('PAT');
 
 coff_ecg = lo_ecg' - up_ecg';
